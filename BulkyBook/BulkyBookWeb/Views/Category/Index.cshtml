@@ -1,0 +1,9 @@
+﻿@using BulkyBookWeb.Models
+@model List<Category>
+<h1>Category List</h1>
+
+@foreach(var category in Model)
+{
+    <p>@category.Name</p>
+
+}
