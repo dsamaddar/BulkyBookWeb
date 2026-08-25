@@ -12,11 +12,13 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
     {
         private readonly IProductService _productservice;
         private readonly ICategoryService _categoryservice;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ProductController(IProductService productservice, ICategoryService categoryservice)
+        public ProductController(IProductService productservice, ICategoryService categoryservice, IWebHostEnvironment webHostEnvironment)
         {
             _productservice = productservice;
             _categoryservice = categoryservice;
+            _webHostEnvironment = webHostEnvironment;
         }
         public async Task<IActionResult> Index()
         {
@@ -25,7 +27,7 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
 
 
-        public async Task<IActionResult> Upsert()
+        public async Task<IActionResult> Upsert(int? id)
         {
             var categories = await _categoryservice.GetAllCategoriesAsync();
             ProductVM productVM = new()
@@ -38,24 +40,67 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
                 Product = new Product()
             };
 
-            return View(productVM);
+            if(id == null || id == 0)
+            {
+                // create
+                return View(productVM);
+            }
+            else
+            {
+                // update
+                productVM.Product = await _productservice.GetProductByIdAsync(id.Value);
+                return View(productVM);
+            }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("Upsert")]
-        public async Task<IActionResult> UpsertPOST(Product product, IFormFile? file)
+        public async Task<IActionResult> UpsertPOST(ProductVM productVM, IFormFile? file)
         {
             if (ModelState.IsValid)
             {
-                await _productservice.CreateProductAsync(product);
-                TempData["success"] = "Product Created Successfully.";
+                string wwwRootPath = _webHostEnvironment.WebRootPath;
+
+                if(file != null)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string productPath = Path.Combine("images", "products");
+                    string finalPath = Path.Combine(wwwRootPath, productPath);
+
+                    if (!Directory.Exists(finalPath))
+                        Directory.CreateDirectory(finalPath);
+
+                    using (var filestream = new FileStream(Path.Combine(finalPath, fileName), FileMode.Create))
+                    {
+                        file.CopyTo(filestream);
+                    }
+
+                    productVM.Product.ImageUrl = Path.Combine(@"\", productPath, fileName).Replace("\\", "/");
+
+                }
+
+                if (productVM.Product.Id == null || productVM.Product.Id == 0)
+                {
+                    // create
+                    await _productservice.CreateProductAsync(productVM.Product);
+                    TempData["success"] = "Product Created Successfully.";
+                }
+                else
+                {
+                    // update
+                    await _productservice.UpdateProductAsync(productVM.Product);
+                    TempData["success"] = "Product Updated Successfully.";
+                }
+
+                
+                
                 return RedirectToAction("Index");
             }
             else
             {
                 var categories = await _categoryservice.GetAllCategoriesAsync();
-                ProductVM productVM = new()
+                productVM = new()
                 {
                     CategoryList = categories.Select(c => new SelectListItem
                     {
