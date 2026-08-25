@@ -3,6 +3,7 @@ using BulkyBook.DataAccess;
 using Microsoft.AspNetCore.Mvc;
 using BulkyBook.Business.Services.IServices;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using BulkyBook.Models.ViewModels;
 
 namespace BulkyBookWeb.Areas.Customer.Controllers
 {
@@ -22,25 +23,28 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             return View();
         }
 
-        
+
 
         public async Task<IActionResult> Upsert()
         {
-            IEnumerable<SelectListItem> categoryList = (await _categoryservice.GetAllCategoriesAsync())
-                .Select(c => new SelectListItem
+            var categories = await _categoryservice.GetAllCategoriesAsync();
+            ProductVM productVM = new()
+            {
+                CategoryList = categories.Select(c => new SelectListItem
                 {
                     Text = c.Name,
                     Value = c.Id.ToString()
-                });
+                }),
+                Product = new Product()
+            };
 
-            ViewData["categoryList"] = categoryList;
-            return View();
+            return View(productVM);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("Upsert")]
-        public async Task<IActionResult> UpsertPOST(Product product)
+        public async Task<IActionResult> UpsertPOST(Product product, IFormFile? file)
         {
             if (ModelState.IsValid)
             {
@@ -48,8 +52,21 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
                 TempData["success"] = "Product Created Successfully.";
                 return RedirectToAction("Index");
             }
-            return View();
-            
+            else
+            {
+                var categories = await _categoryservice.GetAllCategoriesAsync();
+                ProductVM productVM = new()
+                {
+                    CategoryList = categories.Select(c => new SelectListItem
+                    {
+                        Text = c.Name,
+                        Value = c.Id.ToString()
+                    }),
+                    Product = new Product()
+                };
+
+                return View(productVM);
+            }
         }
 
         public async Task<IActionResult> Delete(int? id)
