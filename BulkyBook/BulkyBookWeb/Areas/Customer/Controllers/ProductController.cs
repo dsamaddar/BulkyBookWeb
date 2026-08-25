@@ -2,6 +2,7 @@
 using BulkyBook.DataAccess;
 using Microsoft.AspNetCore.Mvc;
 using BulkyBook.Business.Services.IServices;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BulkyBookWeb.Areas.Customer.Controllers
 {
@@ -9,10 +10,12 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
     public class ProductController : Controller
     {
         private readonly IProductService _productservice;
+        private readonly ICategoryService _categoryservice;
 
-        public ProductController(IProductService productservice)
+        public ProductController(IProductService productservice, ICategoryService categoryservice)
         {
             _productservice = productservice;
+            _categoryservice = categoryservice;
         }
         public async Task<IActionResult> Index()
         {
@@ -21,15 +24,23 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
         
 
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Upsert()
         {
+            IEnumerable<SelectListItem> categoryList = (await _categoryservice.GetAllCategoriesAsync())
+                .Select(c => new SelectListItem
+                {
+                    Text = c.Name,
+                    Value = c.Id.ToString()
+                });
+
+            ViewData["categoryList"] = categoryList;
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [ActionName("Create")]
-        public async Task<IActionResult> CreatePost(Product product)
+        [ActionName("Upsert")]
+        public async Task<IActionResult> UpsertPOST(Product product)
         {
             if (ModelState.IsValid)
             {
@@ -39,38 +50,6 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             }
             return View();
             
-        }
-
-        public async Task<IActionResult> Update(int? id)
-        {
-            if(id == null || id == 0)
-            {
-                return NotFound();
-            }
-
-            var product = await _productservice.GetProductByIdAsync(id.Value);
-
-            if(product == null)
-            {
-                return NotFound();
-            }
-
-            return View(product);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [ActionName("Update")]
-        public async Task<IActionResult> UpdatePost(Product product)
-        {
-            if (ModelState.IsValid)
-            {
-                await _productservice.UpdateProductAsync(product);
-                TempData["success"] = "Product Updated Successfully.";
-                return RedirectToAction("Index");
-            }
-            return View();
-
         }
 
         public async Task<IActionResult> Delete(int? id)
