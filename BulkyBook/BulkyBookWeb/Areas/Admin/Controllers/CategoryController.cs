@@ -3,9 +3,9 @@ using BulkyBook.DataAccess;
 using Microsoft.AspNetCore.Mvc;
 using BulkyBook.Business.Services.IServices;
 
-namespace BulkyBookWeb.Areas.Customer.Controllers
+namespace BulkyBookWeb.Areas.Admin.Controllers
 {
-    [Area("Customer")]
+    [Area("Admin")]
     public class CategoryController : Controller
     {
         private readonly ICategoryService _categoryservice;
