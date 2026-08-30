@@ -16,7 +16,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    options.Password.RequireDigit = true;           // must have at least one number (0-9)
+    options.Password.RequireLowercase = true;       // must have at least one lowercase letter (a-z)
+    options.Password.RequireUppercase = true;       // must have at least one uppercase letter (A-Z)
+    options.Password.RequireNonAlphanumeric = true; // must have at least one special character (!@#$%^&*()
+    options.Password.RequiredLength = 6;            // minimum 6 characters
+    options.Password.RequiredUniqueChars = 1;       // minimum unique characters
+})
         .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddScoped<ICategoryService,CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
