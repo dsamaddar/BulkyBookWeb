@@ -81,6 +81,14 @@
                                 <input asp-for="PostalCode" type="text" class="form-control form-control-lg" placeholder="1214" />
                                 <span asp-validation-for="PostalCode" class="text-danger"></span>
                             </div>
+                            <div class="col-md-12 mb-3">
+                                <!-- TODO: Add label, input and validation tag helper for PostalCode property -->
+                                <label asp-for="Role" class="form-label"></label>
+                                <select asp-for="Role" asp-items="@Model.RoleList" class="form-select">
+
+                                </select>
+                                <span asp-validation-for="PostalCode" class="text-danger"></span>
+                            </div>
                         </div>
 
                         <button type="submit" class="btn btn-accent btn-lg w-100 mb-3">
