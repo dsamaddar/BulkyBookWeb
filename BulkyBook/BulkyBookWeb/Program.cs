@@ -29,6 +29,13 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 builder.Services.AddScoped<ICategoryService,CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 
+builder.Services.ConfigureApplicationCookie(options => {
+    options.LoginPath = "/identity/account/login";
+    options.LogoutPath = "/identity/account/logout";
+    options.AccessDeniedPath = "/identity/account/AccessDenied";
+    options.ExpireTimeSpan = TimeSpan.FromDays(30);
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
