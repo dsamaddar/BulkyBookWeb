@@ -49,7 +49,6 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             return View();
             
         }
-
         public async Task<IActionResult> Update(int? id)
         {
             if(id == null || id == 0)
@@ -115,7 +114,6 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             return RedirectToAction("Index");
 
         }
-
 
     }
 }

@@ -11,7 +11,7 @@
                 </div>
 
                 <div class="card-body p-5">
-                    <form method="post">
+                    <form method="post" asp-route-returnUrl="@ViewData["ReturnUrl"]">
                         <!-- TODO: Add validation summary for ModelOnly errors with class "text-danger mb-3" -->
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
                         <div class="row">
@@ -100,7 +100,7 @@
 
                     <div class="text-center">
                         <!-- TODO: Add Link -->
-                        <p class="mb-0">Already have an account? <a asp-action="Login" class="fw-semibold text-decoration-none" style="color: #17A34A;">Log in</a></p>
+                        <p class="mb-0">Already have an account? <a asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"] class="fw-semibold text-decoration-none" style="color: #17A34A;">Log in</a></p>
                     </div>
                 </div>
             </div>
